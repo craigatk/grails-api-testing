@@ -21,6 +21,8 @@ class GetPersonApiFunctionalSpec extends Specification {
 
         when:
         RestResponse response = new RestBuilder().get("http://localhost:8080/grails-api-testing/person/${person.id}") {
+            // Need to set the accept content-type to JSON, otherwise it defaults to String and
+            // the API will throw a 415 'unsupported media type' error
             accept JSON
         }
 
