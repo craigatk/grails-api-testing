@@ -8,14 +8,14 @@ import org.apache.http.client.fluent.Content
 import org.apache.http.client.fluent.Request
 import spock.lang.Specification
 
-class GetPersonApiFunctionalSpec extends Specification {
+class ReadPersonApiFunctionalSpec extends Specification {
     PersonRemoteControl personRemoteControl
 
     def setup() {
         personRemoteControl = new PersonRemoteControl()
     }
 
-    def 'should fetch a single person with Grails REST client builder'() {
+    def 'should fetch person with Grails REST client builder'() {
         given:
         Person person = personRemoteControl.createPerson([firstName: 'Rest', lastName: 'Smith'])
 
@@ -32,7 +32,7 @@ class GetPersonApiFunctionalSpec extends Specification {
         assert response.json.lastName == person.lastName
     }
 
-    def 'fetch single person with Groovy Http-Builder'() {
+    def 'should fetch a person with Groovy Http-Builder'() {
         given:
         Person person = personRemoteControl.createPerson([firstName: 'Httpbuilder', lastName: 'Smith'])
 
@@ -47,7 +47,7 @@ class GetPersonApiFunctionalSpec extends Specification {
         assert response.data.lastName == person.lastName
     }
 
-    def 'fetch single person with Apache Http Client Fluent'() {
+    def 'should fetch a person with Apache Http Client Fluent'() {
         given:
         Person person = personRemoteControl.createPerson([firstName: 'Httpclient', lastName: 'Smith'])
 
