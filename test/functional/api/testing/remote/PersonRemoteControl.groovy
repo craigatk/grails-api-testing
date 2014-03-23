@@ -11,4 +11,10 @@ class PersonRemoteControl {
             new Person(params).save()
         }
     }
+
+    Person findByFirstName(String firstName) {
+        remote {
+            Person.findByFirstName(firstName)
+        }
+    }
 }
