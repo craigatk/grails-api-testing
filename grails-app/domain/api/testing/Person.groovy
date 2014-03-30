@@ -1,16 +1,16 @@
 package api.testing
 
+// <gist id="9875403">
 import grails.rest.Resource
 
-@Resource(uri='/person', formats=['json'])
+@Resource(uri = '/person', formats = ['json'])
 class Person implements Serializable {
-    String firstName
-    String middleName
-    String lastName
+  String firstName
+  String lastName
 
-    static constraints = {
-        firstName(nullable: false)
-        middleName(nullable: true)
-        lastName(nullable: false)
-    }
+  static constraints = {
+    firstName(nullable: false)
+    lastName(nullable: false)
+  }
 }
+// </gist>

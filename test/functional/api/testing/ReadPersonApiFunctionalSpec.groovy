@@ -1,4 +1,5 @@
 package api.testing
+
 import api.testing.remote.PersonRemoteControl
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
@@ -9,55 +10,65 @@ import org.apache.http.client.fluent.Request
 import spock.lang.Specification
 
 class ReadPersonApiFunctionalSpec extends Specification {
-    PersonRemoteControl personRemoteControl
+  PersonRemoteControl personRemoteControl
 
-    def setup() {
-        personRemoteControl = new PersonRemoteControl()
+  def setup() {
+    personRemoteControl = new PersonRemoteControl()
+  }
+
+  // <gist id="9875349">
+  def 'should fetch person with Grails REST client builder'() {
+    given:
+    Person person = personRemoteControl.createPerson([firstName: 'Rest', lastName: 'Smith'])
+
+    RestBuilder rest = new RestBuilder()
+
+    when:
+    RestResponse response = rest.get("http://localhost:8080/grails-api-testing/person/${person.id}") {
+      // Need to set the accept content-type to JSON, otherwise it defaults to String
+      // and the API will throw a 415 'unsupported media type' error
+      accept JSON
     }
 
-    def 'should fetch person with Grails REST client builder'() {
-        given:
-        Person person = personRemoteControl.createPerson([firstName: 'Rest', lastName: 'Smith'])
+    then:
+    assert response.status == 200
+    assert response.json.firstName == person.firstName
+    assert response.json.lastName == person.lastName
+  }
+  // </gist>
 
-        when:
-        RestResponse response = new RestBuilder().get("http://localhost:8080/grails-api-testing/person/${person.id}") {
-            // Need to set the accept content-type to JSON, otherwise it defaults to String and
-            // the API will throw a 415 'unsupported media type' error
-            accept JSON
-        }
+  // <gist id="9875350">
+  def 'should fetch a person with Groovy Http-Builder'() {
+    given:
+    Person person = personRemoteControl.createPerson([firstName: 'Httpbuilder', lastName: 'Smith'])
 
-        then:
-        assert response.status == 200
-        assert response.json.firstName == person.firstName
-        assert response.json.lastName == person.lastName
-    }
+    RESTClient restClient = new RESTClient("http://localhost:8080/grails-api-testing/")
 
-    def 'should fetch a person with Groovy Http-Builder'() {
-        given:
-        Person person = personRemoteControl.createPerson([firstName: 'Httpbuilder', lastName: 'Smith'])
+    when:
+    def response = restClient.get(path: "person/${person.id}")
 
-        RESTClient restClient = new RESTClient("http://localhost:8080/grails-api-testing/")
+    then:
+    assert response.status == 200
+    assert response.data.firstName == person.firstName
+    assert response.data.lastName == person.lastName
+  }
+  // </gist>
 
-        when:
-        def response = restClient.get(path: "person/${person.id}")
+  // <gist id="9875351">
+  def 'should fetch a person with Apache Http Client Fluent'() {
+    given:
+    Person person = personRemoteControl.createPerson([firstName: 'Httpclient', lastName: 'Smith'])
 
-        then:
-        assert response.status == 200
-        assert response.data.firstName == person.firstName
-        assert response.data.lastName == person.lastName
-    }
+    when:
+    Content responseContent = Request.Get("http://localhost:8080/grails-api-testing/person/${person.id}")
+        .execute()
+        .returnContent()
 
-    def 'should fetch a person with Apache Http Client Fluent'() {
-        given:
-        Person person = personRemoteControl.createPerson([firstName: 'Httpclient', lastName: 'Smith'])
+    def json = JSON.parse(responseContent.toString())
 
-        when:
-        Content responseContent = Request.Get("http://localhost:8080/grails-api-testing/person/${person.id}").execute().returnContent()
-
-        def json = JSON.parse(responseContent.toString())
-
-        then:
-        assert json.firstName == person.firstName
-        assert json.lastName == person.lastName
-    }
+    then:
+    assert json.firstName == person.firstName
+    assert json.lastName == person.lastName
+  }
+  // </gist>
 }
